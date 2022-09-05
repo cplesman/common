@@ -1,0 +1,19 @@
+{
+  "name": "common",
+  "version": "1.0.0",
+  "description": "collection of common library's",
+  "main": "main.c",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cplesman/common.git"
+  },
+  "author": "Chris Plesman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cplesman/common/issues"
+  },
+  "homepage": "https://github.com/cplesman/common#readme"
+}
