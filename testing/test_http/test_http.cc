@@ -16,6 +16,9 @@ Accept: */*\n\
 
 class console_stream : public stream {
 public:
+	console_stream() {
+		Init(0);
+	}
 	long getBytes(char *buf, long num) {
 		long i = 0;
 		while (i < num) {

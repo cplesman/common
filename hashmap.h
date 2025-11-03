@@ -68,10 +68,13 @@ public:
 	virtual unsigned long Key() const {
 		unsigned long key = 0;
 		char *itr = (char*)m_key;
-		while (*itr) {
-			key += *itr;
-			key ^= 0x5a5a;
-			itr++;
+		long i = 0;
+		while (itr[i]) {
+			key += itr[i] << (i & 3);
+			if (!((i + 1) & 0x3)) {
+				key ^= (i & 0x7) ? 0x55555555 : 0xaaaaaaaa;
+			}
+			i++;
 		}
 		return key;
 	}

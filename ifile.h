@@ -15,5 +15,7 @@ public:
 
 	virtual ifile_attribute attributes(const char *p_path) = 0;
 	virtual long mkdir(const char *p_path) = 0;
+
+	virtual ~ifile() {  }
 };
 

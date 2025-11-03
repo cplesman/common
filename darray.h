@@ -6,7 +6,7 @@ template <class dtype>
 class darray {
 protected:
 	dtype *m_data;
-	unsigned long m_totalsize; //must be power of 2
+	unsigned long m_totalsize; 
 	unsigned long m_size;
 public:
 	darray() :darray(0) {}
@@ -20,11 +20,11 @@ public:
 		if (m_data) delete[] m_data;
 	}
 
-
-	void Resize(unsigned long p_newsize) {
+	int Resize(unsigned long p_newsize) {
 		//assume new never fails
 		//size^2 >= p_newsize
 		dtype *nArray = p_newsize ? (new dtype[p_newsize]) : 0;
+		if (!nArray) return -1;
 		if (m_data) {
 			unsigned long i;
 			unsigned long smallerSize = p_newsize;
@@ -77,7 +77,7 @@ public:
 		if (m_data) {
 			delete [] m_data;
 		}
-		m_totalsize = src->m_totalsize;
+		m_totalsize = src->m_size;
 		m_size =src->m_size;
 		if (src->m_size) {
 			m_data = new dtype[src->m_size];
@@ -90,8 +90,9 @@ public:
 
 	const dtype *GetData() { return m_data; }
 	void SetData(const char*p_data, unsigned long size) {
-		SetSize(size);
-		memcpy(m_data, p_data, size / sizeof(dtype));
+		unsigned long s = size / sizeof(dtype);
+		SetSize(s);
+		memcpy(m_data, p_data, s * sizeof(dtype));
 	}
 	void SetSize(unsigned long size) {
 		if (size > m_totalsize) {
@@ -99,10 +100,11 @@ public:
 		}
 		m_size = size;
 	}
-	void CheckSize(unsigned long increment) {
+	int CheckSize(unsigned long increment) {
 		if (m_size + increment > m_totalsize) {
-			Resize(m_size + increment);
+			return Resize(m_size + increment);
 		}
+		return 0;
 	}
 
 	void push(dtype p_data) {

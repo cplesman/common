@@ -4,6 +4,8 @@
 #include <string.h>
 
 long http_header::Load(stream *buf) {
+	headers.Free();
+	query.Free();
 	char verbText[4];
 	long err = buf->GetBytes(verbText, 4);
 	if (err <= 0) {

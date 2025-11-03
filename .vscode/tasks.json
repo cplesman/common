@@ -3,15 +3,17 @@
 	"tasks": [
 		{
 			"type": "cppbuild",
-			"label": "C/C++: g++.exe build active file",
-			"command": "D:\\msys64\\mingw64\\bin\\g++.exe",
+			"label": "C/C++: g++.exe build test_json",
+			"command": "g++",
 			"args": [
 				"-fdiagnostics-color=always",
 				"-g",
-				"${workspaceFolder}\\*.cc",
-				"${workspaceFolder}\\stream\\*.cc",
+				"${workspaceFolder}/testing/test_json/test_json.cpp",
+				"${workspaceFolder}/json/*.cc",
+				"${workspaceFolder}/stream/stream.cc",
+				"${workspaceFolder}/stream/text_stream.cc",
 				"-o",
-				"${workspaceFolder}\\output\\build.exe"
+				"${workspaceFolder}/testing/test_json/output/test_json.out"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
@@ -20,7 +22,7 @@
 				"$gcc"
 			],
 			"group": "build",
-			"detail": "compiler: D:\\msys64\\mingw64\\bin\\g++.exe"
+			"detail": "compiler: /usr/bin/g++.exe"
 		}
 	]
 }

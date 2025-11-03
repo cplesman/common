@@ -27,7 +27,7 @@ public:
 	reference_link *findRef(dataType *ref,reference_link **prev=0) {
 		reference_link *itr = m_references;
 		while (itr) {
-			if (itr->m_ref = ref) {
+			if (itr->m_ref == ref) {
 				return itr;
 			}
 			if (prev) {
