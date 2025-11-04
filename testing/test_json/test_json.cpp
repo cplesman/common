@@ -95,6 +95,11 @@ int main(){
         return -1;
     }
     err = root->Load(&ts, testalloc, testfree);
+    if(err<0) printf("failed to load\r\n");
+
+    err = root->AppendText("appended_text", "this is appended text", testalloc, testfree);
+    if(err<0) printf("failed to load\r\n");
+
 
     ps.Init(0);
     root->Send(&ps, 2);

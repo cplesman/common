@@ -54,7 +54,8 @@ public:
 			while (key[i]) i++;
 			this->key = (char*)alloc(sizeof(char)*(i + 1));
 			if (!this->key) return JSON_ERROR_OUTOFMEMORY;
-			while (key[i]) { this->key[i] = key[i++]; }
+			i=0;
+			while (key[i]) { this->key[i] = key[i];i++; }
 			this->key[i] = 0; //null terminate
 		}
 		this->val = val;
@@ -66,7 +67,8 @@ public:
 			unsigned long i = 0;
 			this->key = (char*)alloc(sizeof(char)*(kLen + 1));
 			if (!this->key) return JSON_ERROR_OUTOFMEMORY;
-			while (i < kLen) { this->key[i] = key[i++]; }
+			i=0;
+			while (key[i]) { this->key[i] = key[i];i++; }
 			this->key[i] = 0; //null terminate
 		}
 		this->val = val;
@@ -196,10 +198,11 @@ public:
 		return 0;
 	}
 
-	jsonkeypair *AppendText(const char *key, const char *val, void*(*alloc)(unsigned long), void(*free)(void*));
-	jsonkeypair *AppendText(const char *key, const char *val, const unsigned long len, void*(*alloc)(unsigned long), void(*free)(void*));
-	jsonkeypair *AppendObj(const char *key, _jsonobj* val, void*(*alloc)(unsigned long), void(*free)(void*));
-	jsonkeypair *AppendNumber(const char *key, double num, void*(*alloc)(unsigned long), void(*free)(void*));
+	long AppendText(const char *key, const char *val, void*(*alloc)(unsigned long), void(*free)(void*));
+	long AppendText(const char *key, const char *val, const unsigned long len, void*(*alloc)(unsigned long), void(*free)(void*));
+	long AppendObj(const char *key, _jsonobj* val, void*(*alloc)(unsigned long), void(*free)(void*));
+	long AppendNumber(const char *key, double num, void*(*alloc)(unsigned long), void(*free)(void*));
+	long AppendBoolean(const char *key, bool p_b, void*(*alloc)(unsigned long), void(*free)(void*));
 };
 int jsonobj_Type();
 void jsonobj_Delete(_jsonobj*, void (*)(void*));
@@ -248,15 +251,12 @@ public:
 
 	long Load(stream* buf, void* (*alloc)(unsigned long), void (*free)(void*));	
 
-	long AppendObj(_jsonobj* val, void* (*alloc)(unsigned long), void (*free)(void*)) {
-		if (m_size >= m_totalsize) {
-			int err = Resize(m_totalsize ? m_totalsize * 2 : 4, free, alloc);
-			if (err < 0) return err;
-		}
-		m_data[m_size] = val;
-		m_size++;
-		return 0;
-	}
+	long long AppendText(const char *val, void*(*alloc)(unsigned long), void(*free)(void*));
+	long long AppendText(const char *val, const unsigned long len, void*(*alloc)(unsigned long), void(*free)(void*));
+	long long AppendObj(_jsonobj* val, void*(*alloc)(unsigned long), void(*free)(void*));
+	long long AppendNumber(double num, void*(*alloc)(unsigned long), void(*free)(void*));
+	long long AppendBoolean(bool p_b, void*(*alloc)(unsigned long), void(*free)(void*));
+
 };
 int jsonarray_Type();
 void jsonarray_Delete(_jsonobj*, void (*)(void*));
@@ -321,15 +321,17 @@ long jsonboolean_Create(_jsonobj**, void* (*)(unsigned long));
 long jsonboolean_Load(_jsonobj*, stream*, char, void* (*)(unsigned long), void(*)(void*));
 
 
-	int JSON_movepastwhite(stream *buf);
+int JSON_movepastwhite(stream *buf);
 
-	//int JSON_sendObj(stream *buf, struct t_jsonobj *obj);
-	long JSON_send(stream *buf, _jsonobj *p_obj, int pretty);
+//int JSON_sendObj(stream *buf, struct t_jsonobj *obj);
+long JSON_send(stream *buf, _jsonobj *p_obj, int pretty);
 
-	int JSON_parseVal(_jsonobj** obj, char lastch, stream* buf, void* (*alloc)(unsigned long), void (*free)(void*));
+int JSON_parseVal(_jsonobj** obj, char lastch, stream* buf, void* (*alloc)(unsigned long), void (*free)(void*));
 
-	int JSON_parseString_iterateNumber(char *result, stream *buf) ;
-	int JSON_parseString_iterateQuote(char* result, char quote, stream* buf);
-	int JSON_parseString_iterateQuote_getLength(char quote, stream* buf);
+int JSON_parseString_iterateNumber(char *result, stream *buf) ;
+int JSON_parseString_iterateQuote(char* result, char quote, stream* buf);
+int JSON_parseString_iterateQuote_getLength(char quote, stream* buf);
+
+
 
 

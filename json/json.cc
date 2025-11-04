@@ -146,6 +146,7 @@ _jsonobj *jsonobj::Find(const char *p_key) {
 		if (!strcmp(p_key, itr->key)) {
 			return itr->val;
 		}
+		itr = itr->next;
 	}
 	return 0; //nothing found
 }
