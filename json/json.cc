@@ -118,7 +118,7 @@ jsonobj_functable jsonboolean_ftable = {
 	jsonboolean_Load
 };
 
-jsonkeypair *jsonobj::operator [] (const unsigned long p_idx) {
+_jsonobj *jsonobj::operator [] (const unsigned long p_idx) {
 	char buf[32];
 	snprintf(buf, sizeof(buf), "%lu", p_idx);
 	//ultoa(p_idx, buf, 10);
@@ -139,12 +139,12 @@ jsonkeypair *jsonobj::operator [] (const unsigned long p_idx) {
 //	}
 //	return 0;
 //}
-jsonkeypair *jsonobj::Find(const char *p_key) {
+_jsonobj *jsonobj::Find(const char *p_key) {
 	unsigned long k = calculateHashKey(p_key);
 	jsonkeypair* itr = m_table[k];
 	while (itr) {
 		if (!strcmp(p_key, itr->key)) {
-			return itr;
+			return itr->val;
 		}
 	}
 	return 0; //nothing found

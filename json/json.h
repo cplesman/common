@@ -86,10 +86,10 @@ class jsonobj : public _jsonobj {
 public:
 	unsigned long m_tablesize;
 	jsonkeypair** m_table;
-	jsonkeypair *operator [] (const char *p_key) {
+	_jsonobj *operator [] (const char *p_key) {
 		return Find(p_key);
 	}
-	jsonkeypair *operator [] (const unsigned long p_idx); //will convert integer to string first
+	_jsonobj *operator [] (const unsigned long p_idx); //will convert integer to string first
 
 	int ResizeTable(unsigned long size, void (*free)(void *), void* (*alloc)(unsigned long)) {
 		if (size == 0) { 
@@ -171,7 +171,7 @@ public:
 	//Load from within another object
 	long Load(stream* buf, void* (*alloc)(unsigned long), void (*free)(void*));
 
-	jsonkeypair *Find(const char *key);
+	_jsonobj *Find(const char *key);
 	unsigned long NumKeys(jsonkeypair *p_firstChild) {
 		unsigned count = 0;
 		jsonkeypair* next = p_firstChild;

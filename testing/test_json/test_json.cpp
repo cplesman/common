@@ -100,8 +100,7 @@ int main(){
     root->Send(&ps, 2);
 
     printf("object at key 'items' = \n");
-    jsonkeypair* items = (*root)["items"];
-    items->val->Send(&ps, 2);
+    ((*root)["items"])->Send(&ps, 2) ;
 
     jsonobj_Delete(root,testfree);
 
