@@ -10,7 +10,7 @@
 #define JSON_TEXT			2 //
 #define JSON_STRING			2 // SAME AS TEXT
 #define JSON_NUMBER			3 //
-#define JSON_RAWDATA		5 //array of raw data
+#define JSON_BOOLEAN		5 //array of raw data
 
 #define JSON_ERROR_OUTOFMEMORY -8
 #define JSON_ERROR_INVALIDDATA -4
@@ -27,6 +27,7 @@ extern jsonobj_functable jsonarray_ftable;
 extern jsonobj_functable jsonraw_ftable;
 extern jsonobj_functable jsonstring_ftable;
 extern jsonobj_functable jsonnumber_ftable;
+extern jsonobj_functable jsonboolean_ftable;
 
 class _jsonobj {
 public:
@@ -81,7 +82,6 @@ public:
 
 class jsonobj : public _jsonobj {
 public:
-	unsigned long m_keycount;
 	unsigned long m_tablesize;
 	jsonkeypair** m_table;
 	jsonkeypair *operator [] (const char *p_key) {
@@ -99,13 +99,13 @@ public:
 			size2 <<= 1;
 		}
 		jsonkeypair** old_data = m_table;
-		m_table = (jsonkeypair**)alloc(sizeof(jsonkeypair*)*size);
+		m_table = (jsonkeypair**)alloc(sizeof(jsonkeypair*)*size2);
 		if (!m_table) {
 			m_table = old_data;
 			return -1;
 		}
 		unsigned long old_size = m_tablesize;
-		m_tablesize = size;
+		m_tablesize = size2;
 		if (old_data) {
 			unsigned long i;
 			for (i = 0; i < old_size; i++) {
@@ -127,17 +127,25 @@ public:
 		unsigned long key = _keyHash(p_key) & mask;
 		return key;
 	}
-	static unsigned long _keyHash(const char*p_key) {
-		unsigned long hash = 0, i = 0;
-		while (p_key[i] && i < 256/*bytes*/) {
-			if (!(i & 3)) {
-				hash ^= (i & 7) ? 0x55555555 : 0xaaaaaaaa;
-			}
-			hash += ((unsigned long)p_key[i]) << (i & 3);
-			i++;
+	static unsigned long _keyHash(const char*str) {
+		unsigned long hash = 5381; // Initial prime number
+		int c;
+
+		while ((c = *str++)) {
+			hash = ((hash << 5) + hash) + c; // hash * 33 + c
 		}
-		hash ^= i;
+
 		return hash;
+		// unsigned long hash = 0, i = 0;
+		// while (p_key[i] && i < 256/*bytes*/) {
+		// 	if (!(i & 3)) {
+		// 		hash ^= (i & 7) ? 0x55555555 : 0xaaaaaaaa;
+		// 	}
+		// 	hash += ((unsigned long)p_key[i]) << (i & 3);
+		// 	i++;
+		// }
+		// hash ^= i;
+		// return hash;
 	}
 
 	void FreeTable(void (*free)(void *)) {
@@ -161,30 +169,24 @@ public:
 	long Send(stream *buf, int pretty=0);
 
 	jsonkeypair *Find(const char *key);
-	//unsigned long NumKeys(jsonkeypair *p_firstChild) {
-	//	unsigned count = 0;
-	//	jsonkeypair* next = p_firstChild;
-	//	while(next){
-	//		count++;
-	//		next = next->next;
-	//	}
-	//	return count;
-	//}
-	//unsigned long NumKeys() {
-	//	unsigned long i;
-	//	for (i = 0; i < m_size; i++) {
-	//		count += NumKeys(m_table[i]);
-	//	}
-	//	return count;
-	//}
-	unsigned long numKeys() { return m_keycount;  }
+	unsigned long NumKeys(jsonkeypair *p_firstChild) {
+		unsigned count = 0;
+		jsonkeypair* next = p_firstChild;
+		while(next){
+			count++;
+			next = next->next;
+		}
+		return count;
+	}
+	unsigned long NumKeys() {
+		unsigned long i,count=0;
+		for (i = 0; i < m_tablesize; i++) {
+			count += NumKeys(m_table[i]);
+		}
+		return count;
+	}
 
 	long addChild(jsonkeypair* child, void (*free)(void*),void*(*alloc)(unsigned long)) {
-		unsigned long decentTableSize = ((m_keycount+4/*include the one to add*/) / 4); //for faster lookup we can / 1
-		if (decentTableSize>m_tablesize) {
-			int err = ResizeTable(decentTableSize,free,alloc);
-			if (err <= 0) return JSON_ERROR_OUTOFMEMORY;
-		}
 		unsigned long key = calculateHashKey(child->key);
 		child->next = m_table[key];
 		m_table[key] = child;
@@ -305,6 +307,16 @@ int jsonnumber_Type();
 void jsonnumber_Delete(_jsonobj*, void (*)(void*));
 long jsonnumber_Create(_jsonobj**, void* (*)(unsigned long));
 long jsonnumber_Load(_jsonobj*, stream*, char, void* (*)(unsigned long), void(*)(void*));
+
+class jsonboolean : public _jsonobj {
+public:
+	bool b;
+};
+int jsonboolean_Type();
+void jsonboolean_Delete(_jsonobj*, void (*)(void*));
+long jsonboolean_Create(_jsonobj**, void* (*)(unsigned long));
+long jsonboolean_Load(_jsonobj*, stream*, char, void* (*)(unsigned long), void(*)(void*));
+
 
 	int JSON_movepastwhite(stream *buf);
 

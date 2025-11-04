@@ -29,7 +29,7 @@ public:
             tmp[i] = 0;
             printf("%s", tmp);
         }
-        return 0;
+        return bi;
     }
 };
 
@@ -46,8 +46,10 @@ int main(){
         return -1;
     }
     err = root->Load(&ts, malloc, free);
+
     ps.Init(0);
-    ps.PutBytes("Hello, Dude!\n", 14);
+    root->Send(&ps, 2);
+
     return 0;
 }
 

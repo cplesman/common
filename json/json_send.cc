@@ -19,10 +19,15 @@ int JSON_sendTab(stream *buf, int tab) {
 }
 
 long jsonobj::Send(stream *buf, int pretty) {
+	long iResult = 0;
 	if (pretty) {
-		JSON_sendTab(buf, pretty);
+		iResult = JSON_sendTab(buf, pretty);
+		if(iResult<0) return iResult;
 	}
-	return JSON_send(buf, this, pretty);
+	iResult = JSON_send(buf, this, pretty);
+	if(iResult<0) return iResult;
+
+	return buf->PutBytes("\r\n", 2);
 }
 
 int JSON_sendtext(stream *buf, char *text) {
@@ -48,12 +53,14 @@ int JSON_sendtext(stream *buf, char *text) {
 	return buf->PutBytes( miniBuf, bufSize); //send rest of it
 }
 
-long JSON_sendchildren(stream *buf, _jsonobj **children, unsigned long num_children, int pretty);
+long JSON_sendchildren(stream *buf, _jsonobj *children[], unsigned long num_children, int pretty);
 long JSON_send(stream *buf, _jsonobj* p_obj, int pretty);
 long JSON_sendpair(stream *buf, jsonkeypair *pair, int pretty) {
 	int cpretty = pretty ? pretty + 2 : 0;
 	int iResult;
 	if (pair->key) { //null if array item
+		iResult = JSON_sendTab(buf, pretty);
+		if (iResult < 0) return iResult;
 		iResult = JSON_sendtext(buf, pair->key);
 		if (iResult < 0) return iResult;
 		iResult = buf->PutBytes(":", 1);
@@ -69,16 +76,19 @@ long JSON_send(stream *buf, _jsonobj *p_obj, int pretty) {
 	case JSON_NUMBER:
 		iResult = sprintf(tmp, "%f", ((jsonnumber*)p_obj)->num);
 		return buf->PutBytes(tmp, iResult);
+	case JSON_BOOLEAN:
+		return buf->PutBytes( ((jsonboolean*)p_obj)->b ? "true" : "false", ((jsonboolean*)p_obj)->b ? 4 : 5);
 	case JSON_TEXT:
 		return JSON_sendtext(buf, ((jsonstring*)p_obj)->m_str);
 	case JSON_OBJ:{
 		jsonobj* obj = (jsonobj*)p_obj;
+		unsigned long keycount = obj->NumKeys();
 		iResult = buf->PutBytes( "{", 1);
-		if (pretty && iResult > 0)
-			iResult = buf->PutBytes("\n", 1);
+		if (pretty && keycount && iResult > 0)
+			iResult = buf->PutBytes("\r\n", 2);
 		if (iResult < 0) return iResult;
-		if (obj->m_keycount) {
-			unsigned long total = obj->m_keycount,count=0;
+		if (keycount) {
+			unsigned long total = keycount,count=0;
 			unsigned long tsize = obj->m_tablesize;
 			for (unsigned long i = 0; i < tsize; i++) {
 				jsonkeypair* itr = obj->m_table[i];
@@ -90,7 +100,7 @@ long JSON_send(stream *buf, _jsonobj *p_obj, int pretty) {
 						iResult = buf->PutBytes(",", 1);
 					}
 					if (pretty)
-						iResult = buf->PutBytes("\n", 1);
+						iResult = buf->PutBytes("\r\n", 2);
 					itr = itr->next;
 				}
 			}
@@ -105,13 +115,13 @@ long JSON_send(stream *buf, _jsonobj *p_obj, int pretty) {
 	case JSON_ARRAY:
 		iResult = buf->PutBytes( "[", 1);
 		if (pretty && iResult > 0)
-			iResult = buf->PutBytes("\n", 1);
+			iResult = buf->PutBytes("\r\n", 2);
 		if (iResult < 0) return iResult;
 		iResult = JSON_sendchildren(buf, ((jsonarray*)p_obj)->m_data, ((jsonarray*)p_obj)->m_size, cpretty);
 		if (iResult < 0) return iResult;
 		if (pretty && iResult >= 0)
-			buf->PutBytes("\n", 1);
-		if (iResult&&pretty) {
+			iResult = buf->PutBytes("\r\n", 2);
+		if (iResult>0&&pretty) {
 			JSON_sendTab(buf, pretty);
 		}
 		iResult = buf->PutBytes("]", 1);
@@ -121,7 +131,7 @@ long JSON_send(stream *buf, _jsonobj *p_obj, int pretty) {
 	}
 }
 
-long JSON_sendchildren(stream *buf, _jsonobj **children, unsigned long num_children, int pretty) {
+long JSON_sendchildren(stream *buf, _jsonobj *children[], unsigned long num_children, int pretty) {
 	if (!children) {
 		return 0; //no children
 	}
@@ -136,7 +146,7 @@ long JSON_sendchildren(stream *buf, _jsonobj **children, unsigned long num_child
 			//not last one
 			iResult = buf->PutBytes( ",", 1);
 			if (pretty )
-				iResult = buf->PutBytes("\n", 1);
+				iResult = buf->PutBytes("\r\n", 2);
 			if (iResult < 0) return iResult;
 		}
 	}

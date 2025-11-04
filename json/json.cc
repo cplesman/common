@@ -9,12 +9,12 @@ int jsonobj_Type() { return JSON_OBJ; }
 int jsonarray_Type() { return JSON_ARRAY; }
 int jsonstring_Type() { return JSON_STRING; }
 int jsonnumber_Type() { return JSON_NUMBER; }
+int jsonboolean_Type() { return JSON_BOOLEAN; }
 
 long jsonobj_Create(_jsonobj** p_obj, void* (*alloc)(unsigned long)) {
 	jsonobj *obj = (jsonobj*)alloc(sizeof(jsonobj));
 	if (!obj) return JSON_ERROR_OUTOFMEMORY;
 	*p_obj = obj;
-	obj->m_keycount = 0;
 	obj->m_ftable = &jsonobj_ftable;
 	obj->m_tablesize = 0;
 	obj->m_table = 0;
@@ -46,6 +46,14 @@ long jsonnumber_Create(_jsonobj** p_obj, void* (*alloc)(unsigned long)) {
 	obj->m_ftable = &jsonnumber_ftable;
 	return 0;
 }
+long jsonboolean_Create(_jsonobj** p_obj, void* (*alloc)(unsigned long)) {
+	jsonboolean* obj = (jsonboolean*)alloc(sizeof(jsonboolean));
+	if (!obj) return JSON_ERROR_OUTOFMEMORY;
+	*p_obj = obj;
+	obj->b = false;
+	obj->m_ftable = &jsonboolean_ftable;
+	return 0;
+}
 
 void jsonobj_Delete(_jsonobj* p_obj, void (*free)(void*)) {
 	jsonobj* obj = (jsonobj*)p_obj;
@@ -74,6 +82,10 @@ void jsonnumber_Delete(_jsonobj* p_obj, void (*free)(void*)) {
 	jsonnumber* obj = (jsonnumber*)p_obj;
 	free(obj);
 }
+void jsonboolean_Delete(_jsonobj* p_obj, void (*free)(void*)) {
+	jsonboolean* obj = (jsonboolean*)p_obj;
+	free(obj);
+}
 
 jsonobj_functable jsonobj_ftable = {
 	jsonobj_Type,
@@ -98,6 +110,12 @@ jsonobj_functable jsonnumber_ftable = {
 	jsonnumber_Create,
 	jsonnumber_Delete,
 	jsonnumber_Load
+};
+jsonobj_functable jsonboolean_ftable = {
+	jsonboolean_Type,
+	jsonboolean_Create,
+	jsonboolean_Delete,
+	jsonboolean_Load
 };
 
 jsonkeypair *jsonobj::operator [] (const unsigned long p_idx) {
@@ -193,7 +211,7 @@ int JSON_parseVal(_jsonobj **p_val, char lastch, stream *buf, void *(*alloc)(uns
 		err = jsonstring_Load(*p_val,buf, ch, alloc, free);
 		if (err < 0) { jsonstring_Delete((jsonobj*)&p_val, free); *p_val = 0; return err; }
 
-		return ch;
+		return err; 
 	}
 	else if ((ch >= '0'&& ch <= '9')||ch=='-') {
 		err = jsonnumber_Create(p_val, alloc);
@@ -202,7 +220,16 @@ int JSON_parseVal(_jsonobj **p_val, char lastch, stream *buf, void *(*alloc)(uns
 		err = jsonnumber_Load(*p_val,buf, ch, alloc, free);
 		if (err < 0) { jsonnumber_Delete((jsonobj*)&p_val, free); *p_val = 0; return err; }
 
-		return ch;
+		return err; 
+	}
+	else if( (ch=='t') || (ch=='f') ) {
+		err = jsonboolean_Create(p_val, alloc);
+		if (err < 0) { if(*p_val) return err; }
+
+		err = jsonboolean_Load(*p_val,buf, ch, alloc, free);
+		if (err < 0) { jsonboolean_Delete((jsonobj*)&p_val, free); *p_val = 0; return err; }
+
+		return err; 
 	}
 
 	return -4; //not a valid obj

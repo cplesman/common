@@ -18,7 +18,6 @@ long jsonobj_Load(_jsonobj* p_obj, stream* buf, char lastCh, void* (*alloc)(unsi
 
 	jsonkeypair* keypair = 0;
 	jsonkeypair** next = &keypair;
-	if (!keypair) return JSON_ERROR_OUTOFMEMORY;
 	unsigned long count = 0;
 
 	//at this point the stream should have moved past '{'
@@ -131,9 +130,6 @@ long jsonarray::Load(stream* buf, void* (*alloc)(unsigned long), void (*free)(vo
 class jsonarrayitemlink {
 public:
 	jsonarrayitemlink() { val = 0; next = 0; }
-	~jsonarrayitemlink() {
-		if (val) delete val; if (next) delete next;
-	}
 	_jsonobj* val;
 	jsonarrayitemlink* next;
 };
@@ -173,17 +169,24 @@ long jsonarray_Load(_jsonobj* p_obj, stream* buf, char lastCh, void* (*alloc)(un
 	} while (1);
 
 	if (err >= 0 && count) {
-		obj->Resize(count,free,alloc);
-		jsonarrayitemlink* itr = list;
-		count = 0;
-		while (itr) {
-			obj->m_data[count] = itr->val;
-			count++;
-			itr = itr->next;
+		err = obj->Resize(count,free,alloc);
+		if(err>=0){
+			jsonarrayitemlink* itr = list;
+			count = 0;
+			while (itr) {
+				obj->m_data[count] = itr->val;
+				count++;
+				itr = itr->next;
+			}
 		}
+		obj->m_size = count;
 	}
 
-	if (list) delete list; //will delete list->next as well
+	while(list){
+		jsonarrayitemlink* next = list->next;
+		delete list;
+		list = next;
+	}
 
 	return err;
 }
@@ -207,4 +210,20 @@ long jsonnumber_Load(_jsonobj* p_obj, stream* buf, char lastCh, void* (*alloc)(u
 	if (err < 0) return err;
 	((jsonnumber*)p_obj)->num = atof(numstr);
 	return numstr[err]; //return last number as ch
+}
+
+long jsonboolean_Load(_jsonobj* p_obj, stream* buf, char lastCh, void* (*alloc)(unsigned long), void (*free)(void*)) {
+	const char* boolstr = (lastCh == 't') ? "true" : "false";
+	unsigned int i = 1;
+	while(i< (boolstr[0]=='t'?4:5) ) {
+		char ch;
+		int err = buf->GetBytes(&ch, 1);
+		if (err < 0) return err;
+		if (ch != boolstr[i]) {
+			return JSON_ERROR_INVALIDDATA;
+		}
+		i++;
+	}
+	((jsonboolean*)p_obj)->b = boolstr[0] == 't' ? true : false;
+	return 'e'; //return last char read (always 'e' in true/false)
 }
