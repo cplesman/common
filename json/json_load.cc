@@ -129,7 +129,7 @@ long jsonarray::Load(stream* buf, void* (*alloc)(unsigned long), void (*free)(vo
 
 class jsonarrayitemlink {
 public:
-	jsonarrayitemlink() { val = 0; next = 0; }
+	void Init() { val = 0; next = 0; }
 	_jsonobj* val;
 	jsonarrayitemlink* next;
 };
@@ -150,8 +150,9 @@ long jsonarray_Load(_jsonobj* p_obj, stream* buf, char lastCh, void* (*alloc)(un
 
 		if (ch == ']') break; //all done
 
-		*next = new jsonarrayitemlink();
+		*next = (jsonarrayitemlink*)alloc(sizeof(jsonarrayitemlink));
 		if (!(*next)) { err = JSON_ERROR_OUTOFMEMORY; break; }
+		(*next)->Init();
 		count++;
 		err = JSON_parseVal(&(*next)->val, ch, buf,alloc,free); //on error parseVal will delete val
 		if (err < 0) { break; }
@@ -184,7 +185,7 @@ long jsonarray_Load(_jsonobj* p_obj, stream* buf, char lastCh, void* (*alloc)(un
 
 	while(list){
 		jsonarrayitemlink* next = list->next;
-		delete list;
+		free(list);
 		list = next;
 	}
 
@@ -214,7 +215,7 @@ long jsonnumber_Load(_jsonobj* p_obj, stream* buf, char lastCh, void* (*alloc)(u
 
 long jsonboolean_Load(_jsonobj* p_obj, stream* buf, char lastCh, void* (*alloc)(unsigned long), void (*free)(void*)) {
 	const char* boolstr = (lastCh == 't') ? "true" : "false";
-	unsigned int i = 1;
+	int i = 1;
 	while(i< (boolstr[0]=='t'?4:5) ) {
 		char ch;
 		int err = buf->GetBytes(&ch, 1);

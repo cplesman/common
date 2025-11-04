@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning(disable: 26495)
 
 #define STREAM_BUFFERSIZE		512
 

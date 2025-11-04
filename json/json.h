@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning(disable: 26495)
 
 #include "../stream/stream.h"
 #ifdef _DEBUG
@@ -33,6 +34,7 @@ class _jsonobj {
 public:
 	jsonobj_functable* m_ftable;
 	//other variables go here
+	long Send(stream *buf, int pretty=0);
 };
 
 class jsonkeypair {
@@ -104,6 +106,9 @@ public:
 			m_table = old_data;
 			return -1;
 		}
+		for (unsigned long i = 0; i < size2; i++) {
+			m_table[i] = 0;
+		}
 		unsigned long old_size = m_tablesize;
 		m_tablesize = size2;
 		if (old_data) {
@@ -165,8 +170,6 @@ public:
 	}
 	//Load from within another object
 	long Load(stream* buf, void* (*alloc)(unsigned long), void (*free)(void*));
-
-	long Send(stream *buf, int pretty=0);
 
 	jsonkeypair *Find(const char *key);
 	unsigned long NumKeys(jsonkeypair *p_firstChild) {

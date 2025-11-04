@@ -18,7 +18,7 @@ int JSON_sendTab(stream *buf, int tab) {
 	return buf->PutBytes(g_spacebytes, t);
 }
 
-long jsonobj::Send(stream *buf, int pretty) {
+long _jsonobj::Send(stream *buf, int pretty) {
 	long iResult = 0;
 	if (pretty) {
 		iResult = JSON_sendTab(buf, pretty);

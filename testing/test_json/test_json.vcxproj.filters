@@ -30,9 +30,18 @@
     <ClCompile Include="..\..\stream\stream.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\json\json_append.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\stream\text_stream.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\json\json.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\stream\text_stream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

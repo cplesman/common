@@ -124,13 +124,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\json\json.cc" />
+    <ClCompile Include="..\..\json\json_append.cc" />
     <ClCompile Include="..\..\json\json_load.cc" />
     <ClCompile Include="..\..\json\json_send.cc" />
     <ClCompile Include="..\..\stream\stream.cc" />
+    <ClCompile Include="..\..\stream\text_stream.cc" />
     <ClCompile Include="test_json.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\json\json.h" />
+    <ClInclude Include="..\..\stream\text_stream.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
