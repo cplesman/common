@@ -40,6 +40,7 @@ public:
 		}
 		m_totalsize = p_newsize;
 		m_data = nArray;
+		return 0;
 	}
 
 	dtype &At(unsigned long p_i) {
