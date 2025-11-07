@@ -4,7 +4,7 @@
 #include "../ifile.h"
 #include "../cstring.h"
 
-#define VMEM_FILEBLOCKSHIFT		((i64)25)
+#define VMEM_FILEBLOCKSHIFT		((i64)10)//1024 bytes per block
 #define VMEM_FILEBLOCKSIZE		((i64)1<<VMEM_FILEBLOCKSHIFT)
 #define VMEM_FILEBLOCKMASK		((VMEM_FILEBLOCKSIZE-1)&(ARCH_BOUNDARY_MASK))
 
@@ -56,6 +56,7 @@ protected:
 		return ((p_loc >> VMEM_FILEBLOCKSHIFT)&(VMEM_CACHETABLEMASK));
 	}
 	void freeCache(vcache *c);
+	void flushCache(vcache *c);
 	void removeLowestHitCache();
 	void destroy();
 public:
@@ -69,6 +70,17 @@ public:
 
 	void Init();
 	void Close();
+
+	void Flush() {
+		int i;
+		for (i = 0; i < VMEM_CACHETABLESIZE; i++) {
+			vcache *citr = m_cache[i];
+			while (citr) {
+				flushCache(citr);
+				citr = citr->m_next;
+			}
+		}
+	}
 
 	i64 Alloc(i64 p_size);
 	void Free(i64 p_loc);

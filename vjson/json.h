@@ -29,13 +29,14 @@ struct jsonobj_functable {
 	void (*Free)(_jsonobj*);
 	long (*Load)(i64, stream *, char);
 };
+extern jsonobj_functable jsonnull_ftable;
 extern jsonobj_functable jsonobj_ftable;
 extern jsonobj_functable jsonarray_ftable;
 extern jsonobj_functable jsonstring_ftable;
 extern jsonobj_functable jsonnumber_ftable;
 extern jsonobj_functable jsonboolean_ftable;
 
-extern jsonobj_functable *jsonobj_ftables[5];
+extern jsonobj_functable *jsonobj_ftables[6];
 
 class _jsonobj {
 public:
@@ -279,6 +280,7 @@ public:
 				_jsonobj* objPtr = (_jsonobj*)g_jsonMem->Lock(m_data[i]);
 				jsonobj_ftables[objPtr->m_ftable]->Free(objPtr);
 				g_jsonMem->Unlock(m_data[i]);
+				g_jsonMem->Free(m_data[i]);
 			}
 			g_jsonMem->Unlock(m_dataLoc);
 			g_jsonMem->Free(m_dataLoc);

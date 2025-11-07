@@ -103,6 +103,9 @@ char jsontext[] =
 "  'name': 'Test Object',\r\n"
 "  'value': 123.456,\r\n"
 "  'active': true,\r\n"
+"  'active2': false,\r\n"
+"  'active4': true,\r\n"
+"  'active3': true,\r\n"
 "  'items': [\r\n"
 "    'Item 0',{\r\n"
 "       'name': 'Sub Object', 'value': 789, \r\n"
@@ -122,43 +125,35 @@ int main(){
 
 	printf("free %lld bytes\n", g_jsonMem->CalculateFree());
 
-	i64 testmem = g_jsonMem->Alloc(sizeof(char)*100);
-	char *testmemPtr = (char*)g_jsonMem->Lock(testmem);
-
-	for(unsigned long i=0;i<sizeof(jsontext);i++){
-		testmemPtr[i] = jsontext[i];
-	}
-
-	g_jsonMem->Unlock(testmem);
-	g_jsonMem->Free(testmem);
-
-	printf("free %lld bytes\n", g_jsonMem->CalculateFree());
-
-
-
-    i64 jsonobj_root;
-    int err = jsonobj_Create(&jsonobj_root);
-    if(err<0){
-        printf("Failed to create json object\n");
-        return -1;
-    }
-    err = jsonobj_Load(jsonobj_root, &ts);
-    if(err<0) printf("failed to load\r\n");
+    i64 jsonobj_root = 992;
+    // int err = jsonobj_Create(&jsonobj_root);
+    // if(err<0){
+    //     printf("Failed to create json object\n");
+    //     return -1;
+    // }
+    // err = jsonobj_Load(jsonobj_root, &ts);
+    // if(err<0) printf("failed to load\r\n");
 
     ps.Init(0);
     JSON_send(&ps,jsonobj_root, 2);
 
-    printf("object at key 'items' = \n");
+    printf("\r\nobject at key 'items' = \n");
+	_jsonobj* rootPtr = (_jsonobj*)g_jsonMem->Lock(jsonobj_root);
+	i64 itemsLoc = ((jsonobj*)rootPtr)->Find("items");
+	JSON_send(&ps, itemsLoc, 2);
+	g_jsonMem->Unlock(jsonobj_root);
 
-    jsonobj_Delete(jsonobj_root);
+    //jsonobj_Delete(jsonobj_root);
 
 #ifdef _WIN32
     _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
     _CrtDumpMemoryLeaks();
 #endif
 
-	printf("free %lld bytes\n", g_jsonMem->CalculateFree());
+	printf("\r\nfree %lld bytes\n", g_jsonMem->CalculateFree());
 
+	g_jsonMem->Close();
+	delete g_jsonMem;
 
     return 0;
 }

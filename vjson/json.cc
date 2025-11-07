@@ -22,7 +22,7 @@ long jsonobj_Create(i64* p_obj) {
 	return 0;
 }
 long jsonarray_Create(i64* p_obj) {
-	*p_obj = g_jsonMem->Alloc(sizeof(jsonobj));
+	*p_obj = g_jsonMem->Alloc(sizeof(jsonarray));
 	if(!*p_obj) return JSON_ERROR_OUTOFMEMORY;
 	jsonarray *obj = (jsonarray*)g_jsonMem->Lock(*p_obj);
 	obj->m_dataLoc = 0;
@@ -150,12 +150,20 @@ jsonobj_functable jsonboolean_ftable = {
 	jsonboolean_Free,
 	jsonboolean_Load
 };
+jsonobj_functable jsonnull_ftable = {
+	0,
+	0,
+	0,
+	0,
+	0
+};
 
-jsonobj_functable* jsonobj_ftables[5] = {
+jsonobj_functable* jsonobj_ftables[6] = {
+	&jsonnull_ftable,
 	&jsonobj_ftable,
-	&jsonarray_ftable,
 	&jsonstring_ftable,
 	&jsonnumber_ftable,
+	&jsonarray_ftable,
 	&jsonboolean_ftable
 };
 
@@ -188,6 +196,8 @@ i64 jsonobj::Find(const char *p_key) {
 		jsonkeypair* itrPtr = (jsonkeypair*)g_jsonMem->Lock(itr);
 		char *keyPtr = (char*)g_jsonMem->Lock(itrPtr->key);
 		if (!strcmp(p_key, keyPtr)) {
+			g_jsonMem->Unlock(itrPtr->key);
+			g_jsonMem->Unlock(itr);
 			return itrPtr->val;
 		}
 		i64 next = itrPtr->next;

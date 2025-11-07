@@ -8,6 +8,12 @@ void vmem::freeCache(vcache *c) {
 	delete [] c->m_mem;
 	delete c;
 }
+void vmem::flushCache(vcache *c) {
+	if (c->m_flags&VMEM_CACHEFLAG_DIRTY) {
+		saveFileBlock(c->m_mem, c->m_loc);
+		c->m_flags &= ~VMEM_CACHEFLAG_DIRTY;
+	}
+}
 
 void vmem::removeLowestHitCache() {
 	long i;
