@@ -34,6 +34,7 @@ class _jsonobj {
 public:
 	jsonobj_functable* m_ftable;
 	//other variables go here
+	long Send(stream *buf, int pretty=0);
 };
 
 class jsonkeypair {
