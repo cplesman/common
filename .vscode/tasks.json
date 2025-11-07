@@ -23,6 +23,30 @@
 			],
 			"group": "build",
 			"detail": "compiler: /usr/bin/g++.exe"
+		},
+		{
+			"type": "cppbuild",
+			"label": "C/C++: g++.exe build test_vjson",
+			"command": "g++",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+				"${workspaceFolder}/testing/test_json/test_vjson.cpp",
+				"${workspaceFolder}/vjson/*.cc",
+				"${workspaceFolder}/virtual_mem/*.cc",
+				"${workspaceFolder}/stream/stream.cc",
+				"${workspaceFolder}/stream/text_stream.cc",
+				"-o",
+				"${workspaceFolder}/testing/test_json/output/test_vjson.out"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build",
+			"detail": "compiler: /usr/bin/g++.exe"
 		}
 	]
 }

@@ -18,7 +18,7 @@
 
 class _jsonobj;
 struct jsonobj_functable {
-	int (*Type)();
+	long (*Type)();
 	long (*Create)(_jsonobj **,void *(*alloc)(unsigned long));
 	void (*Delete)(_jsonobj*, void (*free)(void*));
 	long (*Load)(_jsonobj*, stream *, char, void* (*alloc)(unsigned long), void (*free)(void*));
@@ -34,7 +34,6 @@ class _jsonobj {
 public:
 	jsonobj_functable* m_ftable;
 	//other variables go here
-	long Send(stream *buf, int pretty=0);
 };
 
 class jsonkeypair {
@@ -204,7 +203,7 @@ public:
 	long AppendNumber(const char *key, double num, void*(*alloc)(unsigned long), void(*free)(void*));
 	long AppendBoolean(const char *key, bool p_b, void*(*alloc)(unsigned long), void(*free)(void*));
 };
-int jsonobj_Type();
+long jsonobj_Type();
 void jsonobj_Delete(_jsonobj*, void (*)(void*));
 long jsonobj_Create(_jsonobj**, void *(*)(unsigned long));
 long jsonobj_Load(_jsonobj*, stream*,char,void* (*)(unsigned long),void(*)(void*));
@@ -258,7 +257,7 @@ public:
 	long long AppendBoolean(bool p_b, void*(*alloc)(unsigned long), void(*free)(void*));
 
 };
-int jsonarray_Type();
+long jsonarray_Type();
 void jsonarray_Delete(_jsonobj*, void (*)(void*));
 long jsonarray_Create(_jsonobj**, void* (*)(unsigned long));
 long jsonarray_Load(_jsonobj*, stream*, char, void* (*)(unsigned long), void(*)(void*));
@@ -297,7 +296,7 @@ public:
 	}
 
 };
-int jsonstring_Type();
+long jsonstring_Type();
 void jsonstring_Delete(_jsonobj*, void (*)(void*));
 long jsonstring_Create(_jsonobj**, void* (*)(unsigned long));
 long jsonstring_Load(_jsonobj*, stream*, char, void* (*)(unsigned long), void(*)(void*));
@@ -306,7 +305,7 @@ class jsonnumber : public _jsonobj {
 public:
 	double num;
 };
-int jsonnumber_Type();
+long jsonnumber_Type();
 void jsonnumber_Delete(_jsonobj*, void (*)(void*));
 long jsonnumber_Create(_jsonobj**, void* (*)(unsigned long));
 long jsonnumber_Load(_jsonobj*, stream*, char, void* (*)(unsigned long), void(*)(void*));
@@ -315,22 +314,22 @@ class jsonboolean : public _jsonobj {
 public:
 	bool b;
 };
-int jsonboolean_Type();
+long jsonboolean_Type();
 void jsonboolean_Delete(_jsonobj*, void (*)(void*));
 long jsonboolean_Create(_jsonobj**, void* (*)(unsigned long));
 long jsonboolean_Load(_jsonobj*, stream*, char, void* (*)(unsigned long), void(*)(void*));
 
 
-int JSON_movepastwhite(stream *buf);
+long JSON_movepastwhite(stream *buf);
 
-//int JSON_sendObj(stream *buf, struct t_jsonobj *obj);
+//long JSON_sendObj(stream *buf, struct t_jsonobj *obj);
 long JSON_send(stream *buf, _jsonobj *p_obj, int pretty);
 
-int JSON_parseVal(_jsonobj** obj, char lastch, stream* buf, void* (*alloc)(unsigned long), void (*free)(void*));
+long JSON_parseVal(_jsonobj** obj, char lastch, stream* buf, void* (*alloc)(unsigned long), void (*free)(void*));
 
-int JSON_parseString_iterateNumber(char *result, stream *buf) ;
-int JSON_parseString_iterateQuote(char* result, char quote, stream* buf);
-int JSON_parseString_iterateQuote_getLength(char quote, stream* buf);
+long JSON_parseString_iterateNumber(char *result, stream *buf) ;
+long JSON_parseString_iterateQuote(char* result, char quote, stream* buf);
+long JSON_parseString_iterateQuote_getLength(char quote, stream* buf);
 
 
 

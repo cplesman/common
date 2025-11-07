@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C++ Launch",
+            "name": "C++ Launch JSON Test",
             "type": "cppdbg",
             "cwd" : "${workspaceFolder}/testing/test_json/output/",
             "request": "launch",
@@ -13,6 +13,16 @@
             "environment": [{ "name": "config", "value": "Debug" }],
             "stopAtEntry": false,
             "preLaunchTask": "C/C++: g++.exe build test_json"
+        },
+        {
+            "name": "C++ Launch VJSON test",
+            "type": "cppdbg",
+            "cwd" : "${workspaceFolder}/testing/test_json/output/",
+            "request": "launch",
+            "program": "${workspaceFolder}/testing/test_json/output/test_vjson.out",
+            "environment": [{ "name": "config", "value": "Debug" }],
+            "stopAtEntry": false,
+            "preLaunchTask": "C/C++: g++.exe build test_vjson"
         }
 
     ] 
