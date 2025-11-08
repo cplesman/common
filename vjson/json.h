@@ -17,8 +17,6 @@
 #define JSON_ERROR_OUTOFMEMORY -8
 #define JSON_ERROR_INVALIDDATA -4
 
-void *json_alloc(unsigned long size);
-void json_free(void *ptr);
 extern vmem *g_jsonMem;
 
 class _jsonobj;

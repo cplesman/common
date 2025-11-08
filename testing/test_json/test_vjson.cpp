@@ -71,7 +71,26 @@ public:
 	}
 };
 
-vmem *g_jsonMem = new vmem("json_vmem", new fileio());
+class JsonMM : public vmem{
+public:
+	i64 m_globalObjLoc;
+
+	JsonMM() :vmem("json_vmem", new fileio()) {}
+	~JsonMM() {}
+
+	i64 ReadGenBlock(const void* fromMem) override {
+		//virtually overload these functions to write/read initial settings
+		m_globalObjLoc = *((i64*)fromMem);
+		return sizeof(i64);
+	}
+	i64 WriteGenBlock(void* toMem) override {
+		//virtually overload these functions to write/read initial settings
+		*((i64*)toMem) = m_globalObjLoc;
+		return sizeof(i64);
+	}
+};
+
+vmem *g_jsonMem = new JsonMM();
 
 class printstream : public stream {
 public:
@@ -125,14 +144,17 @@ int main(){
 
 	printf("free %lld bytes\n", g_jsonMem->CalculateFree());
 
-    i64 jsonobj_root = 992;
-    // int err = jsonobj_Create(&jsonobj_root);
-    // if(err<0){
-    //     printf("Failed to create json object\n");
-    //     return -1;
-    // }
-    // err = jsonobj_Load(jsonobj_root, &ts);
-    // if(err<0) printf("failed to load\r\n");
+    i64 jsonobj_root = ((JsonMM*)g_jsonMem)->m_globalObjLoc;
+	if( jsonobj_root==0){
+		int err = jsonobj_Create(&jsonobj_root);
+		if(err<0){
+			printf("Failed to create json object\n");
+			return -1;
+		}
+		err = jsonobj_Load(jsonobj_root, &ts);
+		if(err<0) printf("failed to load\r\n");
+		((JsonMM*)g_jsonMem)->m_globalObjLoc = jsonobj_root;
+	}
 
     ps.Init(0);
     JSON_send(&ps,jsonobj_root, 2);
